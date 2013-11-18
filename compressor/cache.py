@@ -1,13 +1,13 @@
+from hashlib import md5
+import json
 import os
 import socket
 import time
 
 from django.core.cache import get_cache
 from django.core.files.base import ContentFile
-from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.functional import SimpleLazyObject
-from django.utils.hashcompat import md5_constructor
 from django.utils.importlib import import_module
 
 from compressor.conf import settings
@@ -18,7 +18,7 @@ _cachekey_func = None
 
 
 def get_hexdigest(plaintext, length=None):
-    digest = md5_constructor(smart_str(plaintext)).hexdigest()
+    digest = md5(smart_str(plaintext)).hexdigest()
     if length:
         return digest[:length]
     return digest
@@ -70,7 +70,7 @@ def get_offline_manifest():
     if _offline_manifest is None:
         filename = get_offline_manifest_filename()
         if default_storage.exists(filename):
-            _offline_manifest = simplejson.load(default_storage.open(filename))
+            _offline_manifest = json.load(default_storage.open(filename))
         else:
             _offline_manifest = {}
     return _offline_manifest
@@ -84,7 +84,7 @@ def flush_offline_manifest():
 def write_offline_manifest(manifest):
     filename = get_offline_manifest_filename()
     default_storage.save(filename,
-                         ContentFile(simplejson.dumps(manifest, indent=2)))
+                         ContentFile(json.dumps(manifest, indent=2)))
     flush_offline_manifest()
 
 
